@@ -5,3 +5,6 @@ The repository was created as part of the ENVRI plus project.
 
 This project has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 654182.
 
+Authors:
+  - Abraham Nieva
+  - Alex Hardisty
