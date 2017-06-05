@@ -1,0 +1,181 @@
+swagger: '2.0'
+info:
+  description: >-
+    This is a sample description of the data cite Metadata DOI API derived from the
+    description provided at
+    [https://mds.datacite.org/static/apidoc](https://mds.datacite.org/static/apidoc)
+  version: 2.0.0
+  title: DataCite DOI Metadata API for data centres
+  termsOfService: 'https://www.datacite.org/terms.html'
+  contact:
+    url: 'http://datacite.org/members'
+  license:
+    name: DataCite TOS
+    url: 'https://www.datacite.org/terms.html'
+host: mds.datacite.org
+basePath: /
+tags:
+  - name: metadata
+    description: API for managing DOI metadata
+    externalDocs:
+      description: Find out more about DataCite API
+      url: 'https://mds.datacite.org/static/apidoc'
+schemes:
+  - https
+paths:
+  /metadata:
+    post:
+      tags:
+        - metadata
+      summary: Store DOI metadata
+      description: >-
+        This request stores new version of metadata. The request body must
+        contain valid XML.
+      operationId: storeDOIMetadata
+      consumes:
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Metadata for registered DOI
+          required: true
+          schema:
+            $ref: '#/definitions/metadata'
+      responses:
+        '201':
+          description: OK - operation successful
+          schema:
+            $ref: '#definitions/ApiResponse'
+        '400':
+          description: 'Bad Request - invalid XML, wrong prefix'
+        '401':
+          description: Unauthorized - no login
+        '403':
+          description: 'Forbidden - login problem, quota exceeded'
+        '500':
+          description: >-
+            Internal Server Error - server internal error, try later and if
+            problem persists please contact us
+      security:
+        - doi_auth:
+            - 'write:dois'
+            - 'read:dois'
+  '/metadata/{doi}':
+    delete:
+      tags:
+        - metadata
+      summary: Delete DOI metadata
+      description: >-
+        This request marks a dataset as 'inactive'. To activate it again, POST
+        new metadata or set the isActive-flag in the user interface.
+      operationId: deleteDOImetadata
+      produces:
+        - application/xml
+      parameters:
+        - name: doi
+          in: path
+          description: DOI of metadata to delete
+          required: true
+          type: string
+      responses:
+        '200':
+          description: 'OK - operation successful: dataset deactivated'
+          schema:
+            $ref: '#/definitions/metadata'
+        '401':
+          description: Unauthorized - no login
+        '403':
+          description: login problem or dataset belongs to another party
+        '404':
+          description: Not Found - DOI does not exist in our database
+        '500':
+          description: >-
+            Internal Server Error - server internal error, try later and if
+            problem persists please contact us
+      security:
+        - doi_auth:
+            - 'write:dois'
+            - 'read:dois'
+    get:
+      tags:
+        - metadata
+      summary: Find DOI metadata
+      description: >-
+        This request returns the most recent version of metadata associated with
+        a given DOI.
+      operationId: getDOIMetadata
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - name: doi
+          in: path
+          description: DOI of metadata to return
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK - operation successful
+          schema:
+            $ref: '#/definitions/metadata'
+        '401':
+          description: Unauthorized - no login
+        '403':
+          description: login problem or dataset belongs to another party
+        '404':
+          description: Not Found - DOI does not exist in our database
+        '405':
+          description: >-
+            Gone - the requested dataset was marked inactive (using DELETE
+            method)
+        '500':
+          description: >-
+            Internal Server Error - server internal error, try later and if
+            problem persists please contact us
+      security:
+        - doi_auth:
+            - 'write:dois'
+            - 'read:dois'
+securityDefinitions:
+  doi_auth:
+    type: oauth2
+    authorizationUrl: 'http://doistore.swagger.io/oauth/dialog'
+    flow: implicit
+    scopes:
+      'write:dois': modify DOIss in your account
+      'read:dois': read your DOIs
+  api_key:
+    type: apiKey
+    name: api_key
+    in: header
+definitions:
+  metadata:
+    type: object
+    required:
+      - doi
+      - metadataUrl
+    properties:
+      doi:
+        type: string
+        example: doi
+      metadataUrl:
+        type: string
+        example: doiurl
+    xml:
+      name: doi
+  ApiResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      type:
+        type: string
+      message:
+        type: string
+externalDocs:
+  description: Find out more about DataCite API v2 for data centres
+  url: 'https://mds.datacite.org/static/apidoc'

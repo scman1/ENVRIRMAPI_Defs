@@ -1,0 +1,146 @@
+swagger: '2.0'
+info:
+  description: >-
+    This is a sample description of the data cite DOI Media API derived from the
+    description provided at
+    [https://mds.datacite.org/static/apidoc](https://mds.datacite.org/static/apidoc)
+  version: 2.0.0
+  title: DataCite DOI Media API for data centres
+  termsOfService: 'https://www.datacite.org/terms.html'
+  contact:
+    url: 'http://datacite.org/members'
+  license:
+    name: DataCite TOS
+    url: 'https://www.datacite.org/terms.html'
+host: mds.datacite.org
+basePath: /
+tags:
+  - name: media
+    description: API for managing DOI media
+    externalDocs:
+      description: Find out more about DataCite API
+      url: 'https://mds.datacite.org/static/apidoc'
+schemes:
+  - https
+paths:
+  /media:
+    post:
+      tags:
+        - media
+      summary: Store DOI media
+      description: >-
+        POST will add/update media type/urls pairs to a DOI. Standard domain
+        restrictions check will be performed.
+      operationId: storeDOIMedia
+      consumes:
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Media associated to registered DOI
+          required: true
+          schema:
+            $ref: '#/definitions/media'
+      responses:
+        '200':
+          description: OK - operation successful
+          schema:
+            $ref: '#definitions/ApiResponse'
+        '400':
+          description: 'Bad Request - invalid XML, wrong prefix'
+        '401':
+          description: Unauthorized - no login
+        '403':
+          description: 'Forbidden - login problem, quota exceeded'
+        '500':
+          description: >-
+            Internal Server Error - server internal error, try later and if
+            problem persists please contact us
+      security:
+        - doi_auth:
+            - 'write:dois'
+            - 'read:dois'
+  '/media/{doi}':
+    get:
+      tags:
+        - media
+      summary: Find DOI media
+      description: >-
+        This request returns list of pairs of media type and URLs associated
+        with a given DOI.
+      operationId: getDOIMedia
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - name: doi
+          in: path
+          description: DOI of media to return
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK - operation successful
+          schema:
+            $ref: '#/definitions/media'
+        '401':
+          description: Unauthorized - no login
+        '403':
+          description: login problem or dataset belongs to another party
+        '404':
+          description: Not Found - DOI does not exist in our database
+        '500':
+          description: >-
+            Internal Server Error - server internal error, try later and if
+            problem persists please contact us
+      security:
+        - doi_auth:
+            - 'write:dois'
+            - 'read:dois'
+securityDefinitions:
+  doi_auth:
+    type: oauth2
+    authorizationUrl: 'http://doistore.swagger.io/oauth/dialog'
+    flow: implicit
+    scopes:
+      'write:dois': modify DOIss in your account
+      'read:dois': read your DOIs
+  api_key:
+    type: apiKey
+    name: api_key
+    in: header
+definitions:
+  media:
+    type: object
+    required:
+      - doi
+      - mediaType
+      - mediaUrl
+    properties:
+      doi:
+        type: string
+        example: doi
+      mediaType:
+        type: string
+        example: media
+      mediaUrl:
+        type: string
+        example: mediaurl
+    xml:
+      name: media
+  ApiResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      type:
+        type: string
+      message:
+        type: string
+externalDocs:
+  description: Find out more about DataCite API v2 for data centres
+  url: 'https://mds.datacite.org/static/apidoc'
