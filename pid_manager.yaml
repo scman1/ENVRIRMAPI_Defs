@@ -1,12 +1,12 @@
 swagger: '2.0'
 info:
   description: >-
-    Sample ENVRI RM PID Manager Descriptintion in Swaggwe. This sample describes
-    the documentantation of a generic PID Managere Service which collaborates
-    with a PID Registry service (e.g. DOI, ePIC, or  ORCID registries). The
-    endpoints exposed in this example are the ones used to the connect the
-    internal RI components which will request identifiers.
-  version: 0.0.1
+    Sample ENVRI RM PID Manager Description in Swagger. This sample describes
+    the documentation of a generic PID Managere Service that collaborates with a
+    PID Registry service (e.g. DOI, ePIC, or  ORCID registries). The endpoints
+    exposed in this example are the ones used to connect the internal RI
+    components that will request identifiers.
+  version: 0.0.2
   title: ENVRI RM PID Manager
   termsOfService: 'http://envri.eu/documentation/services/'
   contact:
@@ -19,8 +19,8 @@ basePath: /v2
 tags:
   - name: pid
     description: >-
-      Manage persitent identifier (PID), including registration with an external
-      PID registry service.
+      Manage persistent identifier (PID), including registration with an
+      external PID registry service.
     externalDocs:
       description: Find out more
       url: 'http://www.envri.eu/rm'
@@ -629,3 +629,4 @@ definitions:
 externalDocs:
   description: Find out more about PID Manager Services
   url: 'https://wiki.envri.eu/display/EC/Data+Identification'
+
