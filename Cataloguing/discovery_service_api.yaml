@@ -156,14 +156,19 @@ definitions:
     type: object
     required:
       - resultSetID
-      - locationURL
     properties:
       resultSetID:
         type: string
         example: catalogueDiscoveryQuery20171012203011UID
+        description: The ID associated with the query operation
       locationURL:
         type: string
         example: 'http://example.com/catalogueDiscoveryQuery20171012203011UID'
+        description: >-
+          The url of the query results (if results are too big for an html
+          response)
+      resultTable:
+        $ref: '#definitions/miniTable'
     xml:
       name: queryResponse
   catalogueDescriptionResponse:
@@ -213,6 +218,18 @@ definitions:
         example: 6
     xml:
       name: valueRange
+  miniTable:
+    type: object
+    description: Example of a tabular result for query catalogue (if results can fit in html response)
+    properties:
+      value1:
+        type: string
+        example: 1
+      value2:
+        type: string
+        example: 6
+    xml:
+      name: tabularResult
 externalDocs:
   description: Find out more about the ENVRI RM catalogue service API for discovery
   url: 'https://envri.eu/rm/apidoc'
