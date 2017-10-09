@@ -1,0 +1,218 @@
+swagger: '2.0'
+info:
+  description: >-
+    This is a sample description of the ENVRI RM API for the query catalogue
+    service.
+     The API is derived from the definiton of catalogue service. For more information of the ENVRI RM [https://envri.eu/rm/apidoc](https://envri.eu/rm/apidoc)
+     The discovery API allows clients to discover resources registered in a catalogue, by providing three operations queryCatalogue, catalogueDescription, and catalogueDomain. This class has a required association from the Catalogue Service Object, and is thus always implemented by all Catalogue Service implementations. 
+  version: 0.0.1
+  title: ENVRI RM catalogue service API for discovery
+  termsOfService: 'https://envri.eu/rm/api/terms.html'
+  contact:
+    email: envri-rm@list.uva.nl
+  license:
+    name: ENVRI RM Licence
+    url: 'https://envri.eu/rm/api/license.html'
+host: envri.eu
+basePath: /
+tags:
+  - name: discovery api
+    externalDocs:
+      description: Find out more about ENVRI Catalogue Service Discovery API
+      url: 'https://envri.eu/rm/apidoc'
+schemes:
+  - https
+paths:
+  /queryCatalogue:
+    get:
+      tags:
+        - discovery api
+      summary: query catalogue expression
+      description: >-
+        enable formulating a query against a catalogue and return the url of the
+        query result
+      operationId: catalogueDiscoveryQuery
+      consumes:
+        - application/xml
+      produces:
+        - application/xml
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Metadata for registered DOI
+          required: true
+          schema:
+            $ref: '#/definitions/queryExpression'
+      responses:
+        '201':
+          description: OK - operation successful
+          schema:
+            $ref: '#definitions/queryResponse'
+        '400':
+          description: 'Bad Request - invalid XML, wrong prefix'
+        '401':
+          description: Unauthorized - no login
+        '403':
+          description: 'Forbidden - login problem, quota exceeded'
+        '500':
+          description: >-
+            Internal Server Error - server internal error, try later and if
+            problem persists please contact us
+      security:
+        - catalogue_auth:
+            - 'read:catalogue'
+  /catalogueDescription:
+    get:
+      tags:
+        - discovery api
+      summary: Catalogue Description
+      description: >-
+        Allows clients to retrieve a description or reference to the structure
+        (schema), queryables, element sets, and formats of the metadata used for
+        one or more registered resource types.
+      operationId: catalogueDescriptionResponse
+      produces:
+        - application/xml
+      responses:
+        '200':
+          description: 'OK - operation successful: dataset deactivated'
+          schema:
+            $ref: '#definitions/catalogueDescriptionResponse'
+        '401':
+          description: Unauthorized - no login
+        '403':
+          description: login problem or dataset belongs to another party
+        '500':
+          description: >-
+            Internal Server Error - server internal error, try later and if
+            problem persists please contact us
+      security:
+        - catalogue_auth:
+            - 'read:catalogue'
+  '/catalogueDomain/{parameterName}':
+    get:
+      tags:
+        - discovery api
+      summary: Catalogue Domain
+      description: >-
+        Allows clients to retrieve domain values for the different metadata
+        elements
+      operationId: catalogueDomainResponse
+      parameters:
+        - in: path
+          name: parameterName
+          type: string
+          required: true
+          description: name of a metadata element or request parameter
+      produces:
+        - application/xml
+      responses:
+        '200':
+          description: 'OK - operation successful: dataset deactivated'
+          schema:
+            $ref: '#definitions/catalogueDomainResponse'
+        '401':
+          description: Unauthorized - no login
+        '403':
+          description: login problem or dataset belongs to another party
+        '404':
+          description: Not Found - metadata element does not exist in our database
+        '500':
+          description: >-
+            Internal Server Error - server internal error, try later and if
+            problem persists please contact us
+      security:
+        - catalogue_auth:
+            - 'read:catalogue'
+securityDefinitions:
+  catalogue_auth:
+    type: oauth2
+    authorizationUrl: 'http://envri.eu/rm/oauth/dialog'
+    flow: implicit
+    scopes:
+      'write:catalogue': modify Catalogue data
+      'read:catalogue': read Catalogue data
+  api_key:
+    type: apiKey
+    name: api_key
+    in: header
+definitions:
+  queryExpression:
+    type: object
+    required:
+      - queryPredicate
+      - queryLangID
+    properties:
+      queryPredicate:
+        type: string
+        example: 'SELECT * FROM [Table]'
+      queryLangID:
+        type: string
+        example: SQL
+    xml:
+      name: queryExpression
+  queryResponse:
+    type: object
+    required:
+      - resultSetID
+      - locationURL
+    properties:
+      resultSetID:
+        type: string
+        example: catalogueDiscoveryQuery20171012203011UID
+      locationURL:
+        type: string
+        example: 'http://example.com/catalogueDiscoveryQuery20171012203011UID'
+    xml:
+      name: queryResponse
+  catalogueDescriptionResponse:
+    type: object
+    required:
+      - name
+      - typeName
+      - schemaLanguage
+    properties:
+      name:
+        type: string
+        example: Species
+      typeName:
+        type: string
+        example: Table
+      schemaLanguage:
+        type: string
+        example: SQL ISO/IEC 9075
+    xml:
+      name: catalogueDescription
+  catalogueDomainResponse:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        example: parameterName
+      listOfValues:
+        type: string
+        example: '[1,2,3,4,5,6]'
+      valueRange:
+        $ref: '#definitions/valueRange'
+      conceptualScheme:
+        type: string
+        example: 'https://example.com/integers_1_to_6'
+    xml:
+      name: parameterDomain
+  valueRange:
+    type: object
+    properties:
+      minVal:
+        type: string
+        example: 1
+      maxVal:
+        type: string
+        example: 6
+    xml:
+      name: valueRange
+externalDocs:
+  description: Find out more about the ENVRI RM catalogue service API for discovery
+  url: 'https://envri.eu/rm/apidoc'
